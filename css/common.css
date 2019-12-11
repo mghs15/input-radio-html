@@ -1,0 +1,41 @@
+/*ホームページ全体*/
+body {
+	padding: 0 2.5%; 
+	height: 97.5%; 
+	width: 95%;
+	max-width: 350px;
+	margin-right: auto;
+	margin-left : auto;
+	overflow: scroll;
+	background-color: #FFFFFF;
+	color: #000000;
+	line-height: 120%;
+}
+
+/*タイトル*/
+h1{
+	padding: 0.5em;/*文字周りの余白*/
+	color: #494949;/*文字色*/
+	background: #d6ffbd;/*背景色*/
+	border-left: solid 5px #318000;/*左線（実線 太さ 色）*/
+	box-shadow: 0 0 4px rgba(0, 0, 0, 0.23);
+	line-height: 120%;
+}
+
+/*小項目*/
+
+
+p.top{
+	line-height: 120%;
+}
+p.question{
+	line-height: 100%;
+	color: #008c02;
+}
+p.answer{
+	line-height: 130%;
+	color: #008c02;
+}
+
+
+}
