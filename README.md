@@ -2,4 +2,4 @@
 &lt;input>タグの使い方の練習
 
 ## 参考文献
-* 地理院地図（住所リストを利用）
+* [地理院地図のソース（住所リストを利用）](https://github.com/gsi-cyberjapan/gsimaps)
