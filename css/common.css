@@ -23,7 +23,12 @@ h1{
 }
 
 /*è¨çÄñ⁄*/
-
+#map {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  max-width: 350px;
+}
 
 p.top{
 	line-height: 120%;
@@ -32,10 +37,9 @@ p.question{
 	line-height: 100%;
 	color: #008c02;
 }
-p.answer{
-	line-height: 130%;
+p.message{
+	line-height: 100%;
 	color: #008c02;
 }
-
 
 }
