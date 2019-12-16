@@ -5,11 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <link rel="shortcut icon" href="favicon.ico">
-<title>GitHub PagesでHPを公開する試み</title>
+<title>今日どこに行く？</title>
 
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
 <script type="text/javascript" src="./js/muni.js"></script>
 <link rel='stylesheet' type='text/css' href='./css/common.css'>
-
 </head>
 
 
@@ -23,14 +24,14 @@
        <label><input type='radio' name='q1' value=1 checked>犬</label>
        <label><input type='radio' name='q1' value=2>猫</label>
        
-       <p class="question">Q2.セロリ派？パセリ派？</p>
-       <label><input type='radio' name='q2' value=1 checked>セロリ</label>
-       <label><input type='radio' name='q2' value=2>パセリ</label>
+       <p class="question">Q2.スイカ派？メロン派？</p>
+       <label><input type='radio' name='q2' value=1 checked>スイカ</label>
+       <label><input type='radio' name='q2' value=2>メロン</label>
        
-       <p class="question">Q3.スイカ派？メロン派？</p>
-       <label><input type='radio' name='q3' value=1 checked>スイカ</label>
-       <label><input type='radio' name='q3' value=2>メロン</label>
-
+       <p class="question">Q3.パセリ派？セロリ派？</p>
+       <label><input type='radio' name='q3' value=1 checked>パセリ</label>
+       <label><input type='radio' name='q3' value=2>セロリ</label>
+       
        <p class="question">Q4.今の気分は？</p>
        <label><input type='radio' name='q4' value=1 checked>喜</label>
        <label><input type='radio' name='q4' value=2>怒</label>
@@ -46,20 +47,49 @@
   </form>
 </div>
 
-<p>お疲れさまでした</p>
+<p class="message">お疲れさまでした。診断ボタンで結果を表示します！</p>
+
 <input type="button" value="診断" onclick="showResult()">
-<p>↑なかなか乱数がうまく出ないので、何度かお試しください。</p>
-<!--
-<input type="button" value="クリア" onclick="switchCollisionBoxes()">
--->
-<div id="answer" style="border-left: solid 5px #318000;padding: 0.5em;"></div>
-<div id="answerStock" style="padding: 0.5em;"></div>
+
+<p id="answer" style="border-left: solid 5px #318000;padding:0.25em; margin:0.25em;"></p>
+
+<div id='map'></div>
+
+<div id="note">
+<p style="font-size:0.5em;">
+地図で表示される各市町村の座標値は、地理院地図の検索機能で機械的に得られた値を使用しています。
+用いた処理方法の特性上、場合によっては、座標が誤っている市町村があるかもしれませんが、ご了承ください。
+（たとえば、各地の池田町はすべて北海道に飛んでしまいます……。）
+適宜、気づいたら修正していきたいと思います。
+</p>
+</div>
 
 
 <script>
-var answerTextContent="";
 
-function showResult(){
+//地図設定
+var map = new mapboxgl.Map({
+  container: 'map', // container id
+  hash: true, //add #position on URL
+  style: './map/stdr.json', // stylesheet location
+  center: [139.78148, 35.768793], // starting position [lng, lat]
+  zoom: 5, // starting zoom
+  localIdeographFontFamily: false,
+  clickTolerance: 20,
+  doubleClickZoom: false
+});
+
+//UI
+map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+map.addControl(new mapboxgl.ScaleControl() );
+
+//変数
+var answerTextContent="";
+var answerStock = document.getElementById("answerStock");
+var answerStockText  = "";
+
+//回答と乱数から数字を作成
+function getResult(){
 
   var a1 = parseInt( document.question.q1.value );
   var a2 = parseInt( document.question.q2.value );
@@ -77,21 +107,54 @@ function showResult(){
   var magicNumber = a1 + 10 * a2 + 100 * a3 + 1000 * a4 + 10000 * a5;
   magicNumber = magicNumber.toString(10);
   
-  console.log(magicNumber);
-  console.log(a1 + "," + a2 + "," + a3 + "," + a4 + "," + a5);
-  
-  var answerText = document.getElementById("answer");
-  var answerStock = document.getElementById("answerStock");
-  
-  if(MUNI_ARRAY[magicNumber]){
-     answerPlace = MUNI_ARRAY[magicNumber];
-     answerText.innerHTML = '<span style="color:#FF0000;">' + answerPlace + '</span>' + "とかどうですか？";
-     answerStock.innerHTML = '直前の提案：<span style="color:#FF0000;">' + answerPlace + '</span>' + '<br>';
-  }else{
-     answerText.innerHTML = "良い案が思い浮かびませんでした。もう1回、「診断」ボタンを押してください。";
-  }
+  return magicNumber;
   
 }
+
+//作成した数字から結果を表示
+function showResult(){
+
+  var answerText = document.getElementById("answer");
+  var magicNumber = getResult();
+  var count = 0;
+  var countcheck = 0;
+  
+  while(count < 1){
+    
+    //ヒットするまでやる
+    
+    if(MUNI_ARRAY[magicNumber]){
+       var answerPlace = MUNI_ARRAY[magicNumber];
+       var answerPlaceArray = answerPlace.split(',');
+       var answerPlaceName = answerPlaceArray[0];
+       var answerPlaceLat = answerPlaceArray[1];
+       var answerPlaceLon = answerPlaceArray[2];
+       answerText.innerHTML = '<span style="color:#FF0000;">' + answerPlaceName + '</span>' + "とかどうですか？";
+       count = 100;
+    }else{
+       magicNumber = getResult();
+    }
+    
+    
+    //けど、50回超えたらあきらめる
+    
+    countcheck++;
+    
+    if(countcheck > 49){
+       answerText.innerHTML = '<p style="border-left: solid 5px #318000;padding:0.25em; margin:0.25em;">家でゆっくりしてみませんか？</p>';
+       count = 100;
+    }
+    
+  }
+  
+  //地図表示
+  map.flyTo({center: [answerPlaceLon, answerPlaceLat], zoom: 10});
+  
+  //試行回数をログに出力
+  console.log(countcheck);
+  
+}
+
 </script>
 </body>
 
