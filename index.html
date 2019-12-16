@@ -49,7 +49,9 @@
 
 <p class="message">お疲れさまでした。診断ボタンで結果を表示します！</p>
 
+<div style="text-align:center;">
 <input type="button" value="診断" onclick="showResult()">
+</div>
 
 <p id="answer" style="border-left: solid 5px #318000;padding:0.25em; margin:0.25em;"></p>
 
@@ -62,8 +64,12 @@
 （たとえば、各地の池田町はすべて北海道に飛んでしまいます……。）
 適宜、気づいたら修正していきたいと思います。
 </p>
+<p style="font-size:0.5em;">
+地図表示はMapbox GL JSを利用。
+</p>
 </div>
 
+<p style="text-align:center;"><a href="#top">▲トップへ</a></p>
 
 <script>
 
@@ -141,7 +147,7 @@ function showResult(){
     countcheck++;
     
     if(countcheck > 49){
-       answerText.innerHTML = '家でゆっくりしてみませんか？';
+       answerText.innerHTML = '<p style="border-left: solid 5px #318000;padding:0.25em; margin:0.25em;">家でゆっくりしてみませんか？</p>';
        count = 100;
     }
     
